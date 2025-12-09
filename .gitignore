@@ -1,47 +1,54 @@
-# .gitignore
-
-# Виртуальное окружение
+﻿# Виртуальное окружение
 .venv/
 venv/
 env/
 
-# Файлы Python
+# Байт-код Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
 
-# Файлы IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Файлы токенов и чувствительных данных
-*.json
-*.pem
-*.key
+# Файлы настроек и ключи (не загружать на GitHub!)
 .env
+*.key
+*.pem
 token_cache.json
 api_merch_token.json
 
-# Логи
-*.log
-logs/
+# Файлы IDE (PyCharm)
+.idea/
 
 # Временные файлы
+*.log
+logs/
 temp/
 tmp/
-
-# Файлы Excel
-*.xlsx
-*.xls
 
 # Системные файлы
 .DS_Store
 Thumbs.db
+@"
 
-# Файлы базы данных
-*.db
-*.sqlite
+# Windows файлы виртуального окружения
+.venv/Scripts/
+.venv/include/
+.venv/pyvenv.cfg
+.venv/Lib/
+
+# Конкретные кэш файлы Python
+*.pyc
+*.pyo
+*.pyd
+
+# Ваш ключевой файл (я вижу 7utra.key)
+7utra.key
+
+# Конкретные DLL и библиотеки
+*.dll
+*.pyd
+
+# Пользовательские настройки PyCharm
+.idea/workspace.xml
+.idea/misc.xml
+.idea/modules.xml
+"@ | Out-File -Append .gitignore -Encoding UTF8
