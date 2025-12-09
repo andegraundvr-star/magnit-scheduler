@@ -17,7 +17,7 @@ async def create_schedules_only(base_url: str, token_obj: Token) -> List[Dict[st
         # Создаем графики на СЛЕДУЮЩИЙ день
         schedule_date = datetime.now(tz=timezone.utc).date() + timedelta(days=1)
 
-        print(f"📅 Создаем графики на дату: {schedule_date}")
+        print(f" Создаем графики на дату: {schedule_date}")
 
         # Список всех магазинов с именами
         shops_data = [
@@ -40,7 +40,7 @@ async def create_schedules_only(base_url: str, token_obj: Token) -> List[Dict[st
             ("997108", "Тула 2 Сойфера")
         ]
 
-        print(f"   🏪 Создаем графики для {len(shops_data)} магазинов...")
+        print(f"    Создаем графики для {len(shops_data)} магазинов...")
 
         # ВАЖНО: ваш API метод post_merchandisers_schedules ожидает shops_data (список)
         result = await api.post_merchandisers_schedules(
@@ -58,7 +58,7 @@ async def create_schedules_only(base_url: str, token_obj: Token) -> List[Dict[st
                 "result": result  # все магазины получают общий результат
             })
 
-        print("   ✅ Все графики созданы")
+        print("    Все графики созданы")
         return schedule_results
 
 
@@ -72,7 +72,7 @@ async def upload_schedules_to_api(base_url: str, token_obj: Token, schedules_dat
         # Дата для графика (следующий день)
         schedule_date = datetime.now(tz=timezone.utc).date() + timedelta(days=1)
 
-        print(f"📤 Отправляем графики на дату {schedule_date}...")
+        print(f" Отправляем графики на дату {schedule_date}...")
 
         # Извлекаем shops_data из schedules_data
         shops_data = [(item["shop_code"], item.get("shop_name", f"Магазин {item['shop_code']}"))
@@ -86,16 +86,16 @@ async def upload_schedules_to_api(base_url: str, token_obj: Token, schedules_dat
         )
 
         if isinstance(result, dict) and "error" in result:
-            print(f"❌ Ошибка отправки графиков: {result['error']}")
+            print(f" Ошибка отправки графиков: {result['error']}")
             return 0
         else:
-            print(f"✅ Все графики отправлены успешно!")
+            print(f" Все графики отправлены успешно!")
             return len(shops_data)
 
 
 async def delete_schedules(base_url: str, token_obj: Token, shops_list: list = None) -> Dict[str, Any]:
     """Функция для удаления графиков посещения - ОСТАВЛЯЕМ БЕЗ ИЗМЕНЕНИЙ"""
-    print("🗑️ Запуск функции удаления графиков...")
+    print("🗑 Запуск функции удаления графиков...")
 
     if shops_list is None:
         shops_list = [
@@ -118,7 +118,7 @@ async def delete_schedules(base_url: str, token_obj: Token, shops_list: list = N
         delete_results = []
 
         try:
-            print(f"🗑️ Удаляем графики для {len(shops_list)} магазинов...")
+            print(f" Удаляем графики для {len(shops_list)} магазинов...")
 
             for i, shop_code in enumerate(shops_list, 1):
                 print(f"   {i}/{len(shops_list)} Удаляем график для магазина {shop_code}...")
@@ -131,17 +131,17 @@ async def delete_schedules(base_url: str, token_obj: Token, shops_list: list = N
                         shop_code=str(shop_code)  # преобразуем в строку
                     )
                     delete_results.append({"shop_code": shop_code, "result": delete_result})
-                    print(f"      ✅ Удален")
+                    print(f"  Удален")
                 except Exception as e:
                     error_msg = f"Ошибка: {e}"
                     delete_results.append({"shop_code": shop_code, "result": error_msg})
-                    print(f"      ❌ {error_msg}")
+                    print(f"   {error_msg}")
 
                 await asyncio.sleep(0.3)
 
-            print("✅ Удаление графиков завершено!")
+            print(" Удаление графиков завершено!")
             return {"delete_result": delete_results}
 
         except Exception as e:
-            print(f"❌ Ошибка при удалении: {e}")
+            print(f" Ошибка при удалении: {e}")
             return {"error": str(e)}

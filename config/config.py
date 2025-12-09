@@ -1,4 +1,4 @@
-# config/config.py - добавьте настройки БД
+# config/config.py - добавить настройки БД
 import os
 from pathlib import Path
 from dotenv import load_dotenv

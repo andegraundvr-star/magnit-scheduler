@@ -28,7 +28,7 @@ class Token:
             timestamp_now = int(datetime.now(tz=timezone.utc).timestamp())
             return self.expired_timestamp and self.expired_timestamp > timestamp_now + 20
         except Exception as e:
-            print(f"❌ Ошибка проверки токена: {e}")
+            print(f" Ошибка проверки токена: {e}")
             return False
 
     async def _read_token_from_file(self, filename: str) -> Optional[str]:
@@ -44,14 +44,14 @@ class Token:
                     return content["token"]
             return None
         except Exception as e:
-            print(f"❌ Ошибка чтения токена из файла: {e}")
+            print(f" Ошибка чтения токена из файла: {e}")
             return None
 
     async def _fetch_new_token(self, client_id: str, client_secret: str, openid_url: str) -> str:
         """Запрос нового токена из KeyCloak"""
         try:
             async with httpx.AsyncClient(verify=False) as client:
-                print("🔗 Получаем конфигурацию OpenID...")
+                print(" Получаем конфигурацию OpenID...")
                 response = await client.get(url=openid_url)
                 response.raise_for_status()
 
@@ -61,14 +61,14 @@ class Token:
                     "client_secret": client_secret,
                     "grant_type": "client_credentials",
                 }
-                print("🔑 Запрашиваем новый токен...")
+                print(" Запрашиваем новый токен...")
                 response = await client.post(token_url, data=data)
                 response.raise_for_status()
 
                 token_data = response.json()
                 return token_data.get("access_token")
         except Exception as e:
-            print(f"❌ Ошибка получения токена: {e}")
+            print(f" Ошибка получения токена: {e}")
             raise
 
     async def _save_token_to_file(self, filename: str) -> None:
@@ -81,37 +81,37 @@ class Token:
                     "last_update": int(datetime.now(tz=timezone.utc).timestamp())
                 }
                 await file.write(json.dumps(data, indent=4, ensure_ascii=False))
-            print("💾 Токен сохранен в файл")
+            print(" Токен сохранен в файл")
         except Exception as e:
-            print(f"❌ Ошибка сохранения токена: {e}")
+            print(f" Ошибка сохранения токена: {e}")
 
     async def get_token(self) -> str:
         """Получаем токен"""
-        print("🔄 Получение токена...")
+        print(" Получение токена...")
 
         if await self._is_token_valid():
-            print("✅ Токен из памяти")
+            print(" Токен из памяти")
             return self.token
 
         token_from_file = await self._read_token_from_file(self.filename)
         if token_from_file:
-            print("✅ Токен из файла")
+            print(" Токен из файла")
             self.token = token_from_file
             return self.token
 
-        print("🆕 Запрос нового токена...")
+        print("Запрос нового токена...")
         self.token = await self._fetch_new_token(self.client_id, self.client_secret, self.openid_url)
 
         try:
             decoded_token = jwt.decode(self.token, options={"verify_signature": False})
             self.expired_timestamp = decoded_token.get('exp')
-            print(f"⏰ Токен истекает: {datetime.fromtimestamp(self.expired_timestamp)}")
+            print(f" Токен истекает: {datetime.fromtimestamp(self.expired_timestamp)}")
         except Exception as e:
-            print(f"⚠️ Не удалось декодировать токен: {e}")
+            print(f" Не удалось декодировать токен: {e}")
             self.expired_timestamp = int(datetime.now(tz=timezone.utc).timestamp()) + 3600
 
         await self._save_token_to_file(self.filename)
-        print("✅ Новый токен получен и сохранен")
+        print(" Новый токен получен и сохранен")
         return self.token
 class API:
     def __init__(self, client: httpx.AsyncClient) -> None:
@@ -123,13 +123,13 @@ class API:
             headers = {"User-Agent": "API Client", "Authorization": f"Bearer {token}"}
             # ВАЖНО: используем переданного клиента (уже с verify=False)
             response: httpx.Response = await self.client.get(url="/problems/codes", headers=headers)
-            print(f"📡 Status Code: {response.status_code}")  # ← ДОБАВЬТЕ ЛОГИРОВАНИЕ
+            print(f" Status Code: {response.status_code}")  # ← ДОБАВЬТЕ ЛОГИРОВАНИЕ
             if response.status_code == 200:
                 return response.json()
-            print(f"❌ Ошибка API: {response.text}")  # ← ЛОГИРУЙТЕ ОШИБКИ
+            print(f" Ошибка API: {response.text}")  # ← ЛОГИРУЙТЕ ОШИБКИ
             return response.text
         except Exception as e:
-            print(f"❌ Ошибка получения кодов проблем: {e}")
+            print(f" Ошибка получения кодов проблем: {e}")
             return f"Error: {e}"
 
     async def get_merchandisers(self, token: str):
@@ -141,7 +141,7 @@ class API:
                 return response.json()
             return response.text
         except Exception as e:
-            print(f"❌ Ошибка получения мерчандайзеров: {e}")
+            print(f" Ошибка получения мерчандайзеров: {e}")
             return f"Error: {e}"
 
     async def post_merchandisers_schedules(self, token: str, dt: date, shops_data: list = None):
@@ -195,15 +195,15 @@ class API:
             print(f"Status Code: {response.status_code}")
 
             if response.status_code == 200:
-                print("✅ Успешная загрузка графиков")
+                print(" Успешная загрузка графиков")
                 return response.json()
             else:
-                print(f"❌ Ошибка: {response.status_code}")
+                print(f" Ошибка: {response.status_code}")
                 print(f"Детали: {response.text}")
                 return {"error": f"HTTP {response.status_code}"}
 
         except Exception as e:
-            print(f"❌ Исключение при загрузке графиков: {e}")
+            print(f" Исключение при загрузке графиков: {e}")
             return {"error": str(e)}
     async def delete_merchandisers_schedules(self, token: str, dt: date, shop_code: str):
         """Удаление графиков посещения мерчандайзеров"""
@@ -217,7 +217,7 @@ class API:
                 return response.json()
             return response.text
         except Exception as e:
-            print(f"❌ Ошибка удаления графика: {e}")
+            print(f" Ошибка удаления графика: {e}")
             return f"Error: {e}"
 
     async def get_signals(self, token: str, dt: date, limit: int, offset: int):
@@ -230,7 +230,7 @@ class API:
             }
             params = {"limit": limit, "offset": offset}
 
-            print(f"🔍 ЗАПРОС СИГНАЛОВ:")
+            print(f" ЗАПРОС СИГНАЛОВ:")
             print(f"   Базовый URL: {self.client.base_url}")
             print(f"   Дата: {dt}")
             print(f"   Limit: {limit}")
@@ -238,7 +238,7 @@ class API:
 
             # Основной endpoint
             url = f"/signals/{dt}"
-            print(f"   🔎 Пробуем URL: {url}")
+            print(f"    Пробуем URL: {url}")
 
             response: httpx.Response = await self.client.get(
                 url=url,
@@ -247,29 +247,29 @@ class API:
                 timeout=30.0
             )
 
-            print(f"   📡 Статус: {response.status_code}")
-            print(f"   📡 Полный URL запроса: {response.url}")
+            print(f"    Статус: {response.status_code}")
+            print(f"    Полный URL запроса: {response.url}")
 
             if response.status_code == 200:
                 data = response.json()
                 signal_count = len(data.get('signals', []))
-                print(f"   ✅ УСПЕХ! Найдено сигналов: {signal_count}")
+                print(f"    УСПЕХ! Найдено сигналов: {signal_count}")
 
                 if signal_count > 0:
                     # Показываем примеры сигналов
                     for i, signal in enumerate(data['signals'][:3]):
                         shop_code = signal.get('shop_code', 'N/A')
                         product_name = signal.get('product_name', 'N/A')[:50]
-                        print(f"      📍 Сигнал {i+1}: магазин {shop_code}, товар: {product_name}...")
+                        print(f"       Сигнал {i+1}: магазин {shop_code}, товар: {product_name}...")
 
                 return data
             else:
-                print(f"   ❌ Ошибка: {response.status_code}")
-                print(f"   📄 Текст ответа: {response.text}")
+                print(f"    Ошибка: {response.status_code}")
+                print(f"    Текст ответа: {response.text}")
                 return {"signals": []}
 
         except Exception as e:
-            print(f"   💥 Исключение: {e}")
+            print(f"    Исключение: {e}")
             return {"signals": []}
     async def post_signals(self, token: str, signals_data: list):
         """Отправка сигналов о посещении мерчандайзеров"""
@@ -285,8 +285,8 @@ class API:
                 "signals": signals_data
             }
 
-            print(f"📤 Отправка {len(signals_data)} сигналов...")
-            print(f"🔍 Данные: {data}")
+            print(f" Отправка {len(signals_data)} сигналов...")
+            print(f" Данные: {data}")
 
             response: httpx.Response = await self.client.post(
                 url="/signals",  # Возможно endpoint будет другой, уточните!
@@ -295,19 +295,19 @@ class API:
                 timeout=30.0
             )
 
-            print(f"📡 Статус ответа: {response.status_code}")
-            print(f"📄 Текст ответа: {response.text}")
+            print(f" Статус ответа: {response.status_code}")
+            print(f" Текст ответа: {response.text}")
 
             if response.status_code == 200:
-                print("✅ Сигналы успешно отправлены")
+                print(" Сигналы успешно отправлены")
                 return response.json()
             elif response.status_code == 201:
-                print("✅ Сигналы успешно созданы")
+                print(" Сигналы успешно созданы")
                 return response.json()
             else:
-                print(f"❌ Ошибка при отправке сигналов: {response.status_code}")
+                print(f" Ошибка при отправке сигналов: {response.status_code}")
                 return {"error": f"HTTP {response.status_code}", "details": response.text}
 
         except Exception as e:
-            print(f"❌ Исключение при отправке сигналов: {e}")
+            print(f" Исключение при отправке сигналов: {e}")
             return {"error": str(e)}

@@ -12,27 +12,27 @@ print("=" * 50)
 # Тестируем все импорты
 try:
     from config.config import settings
-    print("✅ config.config.settings")
+    print(" config.config.settings")
 except ImportError as e:
-    print(f"❌ config.config: {e}")
+    print(f" config.config: {e}")
 
 try:
     from src.api.contractor_client import Token, API
-    print("✅ src.api.contractor_client")
+    print(" src.api.contractor_client")
 except ImportError as e:
-    print(f"❌ contractor_client: {e}")
+    print(f" contractor_client: {e}")
 
 try:
     from src.services.exchange_service import main
-    print("✅ src.services.exchange_service")
+    print(" src.services.exchange_service")
 except ImportError as e:
-    print(f"❌ exchange_service: {e}")
+    print(f" exchange_service: {e}")
 
 try:
     from src.services.utils import save_to_network_folder
-    print("✅ src.services.utils")
+    print(" src.services.utils")
 except ImportError as e:
-    print(f"❌ utils: {e}")
+    print(f" utils: {e}")
 
 print("=" * 50)
 print("Тест завершен")

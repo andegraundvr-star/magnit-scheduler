@@ -31,8 +31,10 @@ class DatabaseChecker:
             today = datetime.now().strftime("%Y-%m-%d")
 
             # Уточненный запрос - проверяем наличие данных на сегодня
+            # сделать ссылку на верную таблицу в БД
             query = """
             SELECT DISTINCT магазин 
+            
             FROM [витринаданных].[dbo].[План_факт_кз]
             WHERE дата = :today AND магазин IS NOT NULL
             """
@@ -46,15 +48,15 @@ class DatabaseChecker:
 
             if len(df) > 0:
                 shop_codes = df['магазин'].astype(str).tolist()
-                print(f"✅ В БД найдены магазины на сегодня ({today}): {len(shop_codes)} шт.")
-                print(f"   Примеры: {shop_codes[:5] if shop_codes else 'нет данных'}")
+                print(f" В БД найдены магазины на сегодня ({today}): {len(shop_codes)} шт.")
+                print(f" Примеры: {shop_codes[:5] if shop_codes else 'нет данных'}")
                 return True, shop_codes
             else:
-                print(f"⏸️ В БД нет данных на сегодня ({today})")
+                print(f" В БД нет данных на сегодня ({today})")
                 return False, []
 
         except Exception as e:
-            print(f"❌ Ошибка проверки БД: {e}")
+            print(f" Ошибка проверки БД: {e}")
             return False, []
 
 
@@ -71,7 +73,7 @@ class SchedulerApp:
 
     async def initialize(self):
         """Инициализация токена"""
-        print("\n🔑 Создаем объект токена...")
+        print("\n Создаем объект токена...")
         self.token_obj = Token(
             filename=settings.TOKEN_FILE,
             client_id=settings.CLIENT_ID,
@@ -82,11 +84,11 @@ class SchedulerApp:
 
     async def run_full_process(self, shop_codes: list = None):
         """Полный процесс обмена"""
-        print(f"\n🚀 Запуск полного процесса: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"\n Запуск полного процесса: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         try:
             # 1. Основной процесс (получение сигналов)
-            print("\n📡 1. Получаем данные от контрагента...")
+            print("\n 1. Получаем данные от контрагента...")
             results = await main_process(
                 base_url=settings.API_BASE_URL,
                 token_obj=self.token_obj
@@ -96,7 +98,7 @@ class SchedulerApp:
                 process_results(results)
 
             # 2. Создаем графики
-            print("\n📅 2. Создаем и отправляем графики...")
+            print("\n 2. Создаем и отправляем графики...")
             schedules_result = await create_schedules_only(
                 base_url=settings.API_BASE_URL,
                 token_obj=self.token_obj
@@ -108,10 +110,10 @@ class SchedulerApp:
                 schedules_data=schedules_result
             )
 
-            print(f"\n✅ Процесс завершен: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"\n Процесс завершен: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         except Exception as e:
-            print(f"❌ Ошибка: {e}")
+            print(f" Ошибка: {e}")
             import traceback
             traceback.print_exc()
 
@@ -146,23 +148,23 @@ class SchedulerApp:
         )
 
         self.scheduler.start()
-        print(f"⏰ Шедулер запущен. Проверка БД каждые {self.check_interval} минут ({self.check_interval/60:.1f} часов)...")
+        print(f" Шедулер запущен. Проверка БД каждые {self.check_interval} минут ({self.check_interval/60:.1f} часов)...")
         print(f"   Следующая проверка в: {(datetime.now() + timedelta(minutes=self.check_interval)).strftime('%H:%M')}")
 
     async def _check_and_run(self):
         """Проверка условия и запуск процесса"""
         print(f"\n{'='*60}")
-        print(f"🔍 Проверка БД: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f" Проверка БД: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"{'='*60}")
 
         should_run, shop_codes = self.db_checker.check_schedule_condition()
 
         if should_run:
-            print("✅ Условие выполнено, запускаем процесс...")
+            print(" Условие выполнено, запускаем процесс...")
             await self.run_full_process(shop_codes)
         else:
             next_check = datetime.now() + timedelta(minutes=self.check_interval)
-            print(f"⏸️ Условие не выполнено")
+            print(f" Условие не выполнено")
             print(f"   Следующая проверка: {next_check.strftime('%Y-%m-%d %H:%M:%S')}")
 
     async def run_once(self):
@@ -173,18 +175,18 @@ class SchedulerApp:
     def shutdown(self):
         """Остановка шедулера"""
         self.scheduler.shutdown()
-        print("🛑 Шедулер остановлен")
+        print(" Шедулер остановлен")
 
 
 async def main():
     """Точка входа для шедулера"""
     print("="*60)
-    print("🚀 Шедулер обмена данными с контрагентом")
+    print(" Шедулер обмена данными с контрагентом")
     print("="*60)
     print(f"Настройки:")
-    print(f"  • Проверка БД: каждые {settings.CHECK_INTERVAL_MINUTES} мин ({settings.CHECK_INTERVAL_MINUTES/60:.1f} ч)")
-    print(f"  • База данных: {settings.DB_HOST}/{settings.DB_NAME}")
-    print(f"  • API: {settings.API_BASE_URL}")
+    print(f"   Проверка БД: каждые {settings.CHECK_INTERVAL_MINUTES} мин ({settings.CHECK_INTERVAL_MINUTES/60:.1f} ч)")
+    print(f"   База данных: {settings.DB_HOST}/{settings.DB_NAME}")
+    print(f"   API: {settings.API_BASE_URL}")
     print("="*60)
 
     app = SchedulerApp()
@@ -199,13 +201,13 @@ async def main():
 
             # Можно добавить периодический вывод статуса
             if datetime.now().minute % 30 == 0:  # Каждые 30 минут
-                print(f"\n📊 Статус: Шедулер работает ({datetime.now().strftime('%H:%M')})")
+                print(f"\n Статус: Шедулер работает ({datetime.now().strftime('%H:%M')})")
 
     except (KeyboardInterrupt, SystemExit):
-        print("\n👋 Остановка по команде пользователя...")
+        print("\n Остановка по команде пользователя...")
         app.shutdown()
     except Exception as e:
-        print(f"\n💥 Критическая ошибка: {e}")
+        print(f"\n Критическая ошибка: {e}")
         app.shutdown()
 
 

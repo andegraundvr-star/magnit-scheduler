@@ -28,14 +28,14 @@ def save_to_network_folder(results: dict):
             if 'problems' in results and 'problem_codes' in results['problems']:
                 problems_df = pd.DataFrame(results['problems']['problem_codes'])
                 problems_df.to_excel(writer, sheet_name='Problems', index=False)
-                print(f"✅ Problems сохранены ({len(problems_df)} строк)")
+                print(f" Problems сохранены ({len(problems_df)} строк)")
 
             # Сигналы
             if 'signals' in results and 'signals' in results['signals']:
                 signals_df = pd.DataFrame(results['signals']['signals'])
                 if not signals_df.empty:
                     signals_df.to_excel(writer, sheet_name='Signals', index=False)
-                    print(f"✅ Signals сохранены ({len(signals_df)} строк)")
+                    print(f" Signals сохранены ({len(signals_df)} строк)")
                 else:
                     # ДОБАВЛЕНО: Записываем информацию о пустых сигналах
                     empty_signals_df = pd.DataFrame([{
@@ -44,7 +44,7 @@ def save_to_network_folder(results: dict):
                         'статус': 'Требуется уточнение endpoint у контрагента'
                     }])
                     empty_signals_df.to_excel(writer, sheet_name='Signals', index=False)
-                    print("📝 Signals: записана информация об отсутствии данных")
+                    print(" Signals: записана информация об отсутствии данных")
 
             # Мерчандайзеры
             if 'merchandisers' in results:
@@ -54,9 +54,9 @@ def save_to_network_folder(results: dict):
                 else:
                     merchandisers_df = pd.DataFrame([merchandisers])
                 merchandisers_df.to_excel(writer, sheet_name='Merchandisers', index=False)
-                print(f"✅ Merchandisers сохранены ({len(merchandisers_df)} строк)")
+                print(f" Merchandisers сохранены ({len(merchandisers_df)} строк)")
 
-        print(f"💾 Файл сохранен: {full_path}")
+        print(f" Файл сохранен: {full_path}")
 
         # ДОБАВЛЕНО: Записываем лог проблемы с сигналами
         log_problem_with_signals()
@@ -64,7 +64,7 @@ def save_to_network_folder(results: dict):
         return full_path
 
     except Exception as e:
-        print(f"❌ Ошибка сохранения файла: {e}")
+        print(f" Ошибка сохранения файла: {e}")
         # ... остальной код обработки ошибок
 
 def log_problem_with_signals():
@@ -81,13 +81,13 @@ def log_problem_with_signals():
     with open(log_filename, 'a', encoding='utf-8') as f:
         f.write(f"{log_entry}\n")
 
-    print("📋 Проблема с сигналами записана в лог")
+    print(" Проблема с сигналами записана в лог")
 def process_results(results: dict):
     """
     Обрабатывает результаты и выводит статистику
     """
     print("\n" + "="*60)
-    print("📊 ОБРАБОТКА РЕЗУЛЬТАТОВ")
+    print(" ОБРАБОТКА РЕЗУЛЬТАТОВ")
     print("="*60)
 
     # Коды проблем
@@ -95,17 +95,17 @@ def process_results(results: dict):
         problems = results['problems']
         if 'problem_codes' in problems:
             problem_count = len(problems['problem_codes'])
-            print(f"✅ Коды проблем: {problem_count} записей")
+            print(f" Коды проблем: {problem_count} записей")
 
     # Сигналы
     if 'signals' in results:
         signals = results['signals']
         if isinstance(signals, dict) and 'signals' in signals:
             signal_count = len(signals['signals'])
-            print(f"📡 Сигналы: {signal_count}")
+            print(f" Сигналы: {signal_count}")
 
             if signal_count > 0:
-                print("📋 Примеры сигналов:")
+                print(" Примеры сигналов:")
                 for i, signal in enumerate(signals['signals'][:3]):
                     shop_code = signal.get('shop_code', 'N/A')
                     problem_code = signal.get('problem_code', 'N/A')
@@ -113,30 +113,30 @@ def process_results(results: dict):
                     print(f"   {i+1}. Магазин {shop_code}, Проблема: {problem_code}")
                     print(f"      Товар: {product_name}...")
         else:
-            print(f"📦 Сигналы: {signals}")
+            print(f" Сигналы: {signals}")
 
     # Мерчандайзеры
     if 'merchandisers' in results:
         merchandisers = results['merchandisers']
         if isinstance(merchandisers, dict) and 'merchandisers' in merchandisers:
             merch_count = len(merchandisers['merchandisers'])
-            print(f"👥 Мерчандайзеры: {merch_count} записей")
+            print(f" Мерчандайзеры: {merch_count} записей")
         else:
-            print("👥 Мерчандайзеры: получены")
+            print(" Мерчандайзеры: получены")
 
     # Результаты создания графиков
     if 'schedule' in results:
         schedule_count = len(results['schedule'])
         success_schedule = sum(1 for item in results['schedule']
                                if 'Данные отправлены на загрузку' in str(item.get('result', '')))
-        print(f"📅 Создание графиков: {success_schedule}/{schedule_count} успешно")
+        print(f" Создание графиков: {success_schedule}/{schedule_count} успешно")
 
     # Результаты удаления
     if 'delete_result' in results:
         delete_count = len(results['delete_result'])
         success_delete = sum(1 for item in results['delete_result']
                              if 'Данные отправлены на удаление' in str(item.get('result', '')))
-        print(f"🗑️ Удаление графиков: {success_delete}/{delete_count} успешно")
+        print(f" Удаление графиков: {success_delete}/{delete_count} успешно")
 
     # Сохранение в сетевую папку
     save_to_network_folder(results)
